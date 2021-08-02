@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 #cmake_policy(SET CMP0022 NEW)
 #cmake_policy(SET CMP0023 NEW)
 
@@ -489,16 +489,14 @@ if(MSVC)
   endforeach(flag_var)
 
   # Try harder
-  list(APPEND CUDA_NVCC_FLAGS "-Xcompiler" "/w" "-w")
+  string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler /w -w")
 endif(MSVC)
 
-list(APPEND CUDA_NVCC_FLAGS "-Xfatbin" "-compress-all")
-list(APPEND CUDA_NVCC_FLAGS_DEBUG "-Xfatbin" "-compress-all")
-list(APPEND CUDA_NVCC_FLAGS_RELWITHDEBINFO "-Xfatbin" "-compress-all")
+string(APPEND CMAKE_CUDA_FLAGS " -Xfatbin -compress-all")
 
 if(NOT MSVC)
-  list(APPEND CUDA_NVCC_FLAGS_DEBUG "-g" "-lineinfo" "--source-in-ptx")
-  list(APPEND CUDA_NVCC_FLAGS_RELWITHDEBINFO "-g" "-lineinfo" "--source-in-ptx")
+  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -g -lineinfo --source-in-ptx")
+  string(APPEND CMAKE_CUDA_FLAGS_RELWITHDEBINFO " -g -lineinfo --source-in-ptx")
 endif(NOT MSVC)
 
 # Set INTERN_BUILD_MOBILE for all mobile builds. Components that are not

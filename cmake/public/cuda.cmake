@@ -25,16 +25,34 @@ if(NOT MSVC)
   set(CUDA_USE_STATIC_CUDA_RUNTIME OFF CACHE INTERNAL "")
 endif()
 
-# Find CUDA.
-find_package(CUDA)
-if(NOT CUDA_FOUND)
+# CUDA language support
+include(CheckLanguage)
+check_language(CUDA)
+
+if(CMAKE_CUDA_COMPILER)
+  enable_language(CUDA)
+  set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
+  set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+else()
+  set(CAFFE2_USE_CUDA OFF)
+endif()
+
+# Find CUDA libraries
+if(CAFFE2_USE_CUDA)
+  find_package(CUDA)
+  if(NOT CUDA_FOUND)
+    set(CAFFE2_USE_CUDA OFF)
+  endif()
+endif()
+
+if(NOT CAFFE2_USE_CUDA)
   message(WARNING
     "Caffe2: CUDA cannot be found. Depending on whether you are building "
     "Caffe2 or a Caffe2 dependent library, the next warning / error will "
     "give you more info.")
-  set(CAFFE2_USE_CUDA OFF)
   return()
 endif()
+
 message(STATUS "Caffe2: CUDA detected: " ${CUDA_VERSION})
 message(STATUS "Caffe2: CUDA nvcc is: " ${CUDA_NVCC_EXECUTABLE})
 message(STATUS "Caffe2: CUDA toolkit directory: " ${CUDA_TOOLKIT_ROOT_DIR})
@@ -511,6 +529,8 @@ endif()
 
 # setting nvcc arch flags
 torch_cuda_get_nvcc_gencode_flag(NVCC_FLAGS_EXTRA)
+# CMake 3.18 adds integrated support for architecture selection, but we can't rely on it
+set(CMAKE_CUDA_ARCHITECTURES OFF)
 list(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
 message(STATUS "Added CUDA NVCC flags for: ${NVCC_FLAGS_EXTRA}")
 
@@ -569,3 +589,8 @@ list(APPEND CUDA_NVCC_FLAGS "--expt-relaxed-constexpr")
 
 # Set expt-extended-lambda to support lambda on device
 list(APPEND CUDA_NVCC_FLAGS "--expt-extended-lambda")
+
+string(PREPEND CMAKE_CUDA_FLAGS "--forward-unknown-to-host-compiler ")
+foreach(FLAG ${CUDA_NVCC_FLAGS})
+  string(APPEND CMAKE_CUDA_FLAGS " ${FLAG}")
+endforeach()

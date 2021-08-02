@@ -37,6 +37,7 @@ popd
 if not "%USE_CUDA%"=="1" goto cuda_build_end
 
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION%
+set CUDA_HOME=%CUDA_PATH%
 
 if x%CUDA_VERSION:.=%==x%CUDA_VERSION% (
     echo CUDA version %CUDA_VERSION% format isn't correct, which doesn't contain '.'
@@ -58,6 +59,7 @@ set PATH=%CUDA_PATH%\bin;%CUDA_PATH%\libnvvp;%PATH%
 
 set CUDNN_LIB_DIR=%CUDA_PATH%\lib\x64
 set CUDA_TOOLKIT_ROOT_DIR=%CUDA_PATH%
+set CUDAToolkit_ROOT=%CUDA_PATH%
 set CUDNN_ROOT_DIR=%CUDA_PATH%
 set NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt
 set PATH=%CUDA_PATH%\bin;%CUDA_PATH%\libnvvp;%PATH%
